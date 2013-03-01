@@ -28,47 +28,67 @@ To: (
 
 Here, the user changed his nickname from 'Tehnix' to 'BlaBliBlu'.
 -}
-module IRCParser where
+module HsIRCParser where
+
+import Data.Char
 
 
+-- Split a string on a given delimter
 split :: String -> Char -> [String]
 split str delim = let (start, end) = break (== delim) str
     in start : if null end then [] else split (tail end) delim  
 
+-- Split the string on : and remove the first empty element of the list
 tokenize ::  String -> [String]
 tokenize s = tail $ split s ':'
 
+-- Get the nickname
 getNickname ::  [String] -> String
 getNickname t = head $ split (head t) '!'
 
+-- Strip the nickname of the @~!& chars in front of ops etc
 strippedNickname :: String -> String
 strippedNickname s = if head s `elem` "@~!&" then tail s else s
 
+-- Get the hostname
 getHostname :: [String] -> String
 getHostname t = head $ words $ split (split (head t) '!'!!1) '@'!!1
 
+-- Get the username
 getUsername :: [String] -> String
 getUsername t = head $ split (split (head t) '!'!!1) '@'
 
+-- Get the channel
+getChannel :: [String] -> String
+getChannel [] = ""
+getChannel w = if getChannel' (head w) then head w else getChannel $ tail w
+
+getChannel' :: String -> Bool
+getChannel' ('#':_) = True
+getChannel' _ = False
+
+-- Get the action
 getAction :: [String] -> String
-getAction t = (words (head t))!!1
+getAction t = words (head t)!!1
 
 -- Check if there is an IRC code present
 isCode :: [String] -> Bool
-isCode t = let w = words (head t) in if length w > 1 then all isDigit (w!!1) else False
+isCode t = let w = words (head t) in length w > 1 && all isDigit (w!!1)
 
 -- Grab the IRC code from the output
 getCode :: [String] -> String
-getCode t = (words (head t))!!1
+getCode t = words (head t)!!1
 
-parse s = do
-    t <- return $ tokenize s
-    nickname <- return $ strippedNickname $ getNickname t
-    hostname <- return $ getHostname t
-    username <- return $ getUsername t
-    userinfo <- return $ (nickname, username, hostname)
-    action <- return $ getAction t
-    print (action, userinfo)
+parse ::  String -> IO ()
+parse s = let
+    t = tokenize s
+    nickname = strippedNickname $ getNickname t
+    hostname = getHostname t
+    username = getUsername t
+    userinfo = (nickname, username, hostname)
+    action = getAction t
+    in print (action, userinfo)
 
-main = parse ":Tehnix!Tehnix@ghost-EC31B3C1.rdns.scalabledns.com NICK :BlaBliBlu"
+-- main :: IO ()
+-- main = parse ":Tehnix!Tehnix@ghost-EC31B3C1.rdns.scalabledns.com NICK :BlaBliBlu"
 
