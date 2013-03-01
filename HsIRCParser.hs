@@ -28,7 +28,7 @@ To: (
 
 Here, the user changed his nickname from 'Tehnix' to 'BlaBliBlu'.
 -}
-module HsIRCParser where
+module HsIRCParser.HsIRCParser where
 
 import Data.Char
 
