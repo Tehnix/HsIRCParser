@@ -1,9 +1,9 @@
 ## Parse IRC output ##
 
-From: `:irc.codetalk.io 332 Innocence #lobby :Let's all have great fun! :D`
+From: `:irc.server.org 332 Innocence #lobby :Let's all have great fun! :D`
 To: 
 <pre>(
-    'irc.codetalk.io', -- server
+    'irc.server.org', -- server
     '#lobby', -- channel
     Nothing, -- recipient
     Nothing, -- user
